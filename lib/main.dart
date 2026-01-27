@@ -235,41 +235,54 @@ class _FocBlePageState extends State<FocBlePage> {
     });
   }
 
-  // void _handleTelemetryLine(String line) {
-  //   // ESP32가 "millis, rpm" 형식으로 보내는 걸 가정
-  //   // 혹시 "rpm"만 오더라도 동작하도록 방어
-  //   _lastLine = line;
-  //
-  //   int millis = _lastMillis;
-  //   double rpm = _lastRpm;
-  //
-  //   final tokens = line.split(',');
-  //   if (tokens.length >= 2) {
-  //     millis = int.tryParse(tokens[0].trim()) ?? millis;
-  //     rpm = double.tryParse(tokens[1].trim()) ?? rpm;
-  //   } else {
-  //     rpm = double.tryParse(line.trim()) ?? rpm;
-  //   }
-  //
-  //   _lastMillis = millis;
-  //   _lastRpm = rpm;
-  //   _lastTelemTime = DateTime.now();
-  //
-  //   if (mounted) setState(() {});
-  // }
+  void _handleTelemetryLine(String line) {
+    // ESP32가 "millis, rpm" 형식으로 보내는 걸 가정
+    // 혹시 "rpm"만 오더라도 동작하도록 방어
+    _lastLine = line;
 
-  Future<void> _sendVelocity(String text) async {
+    int millis = _lastMillis;
+    double rpm = _lastRpm;
+
+    final tokens = line.split(',');
+    if (tokens.length >= 2) {
+      millis = int.tryParse(tokens[0].trim()) ?? millis;
+      rpm = double.tryParse(tokens[1].trim()) ?? rpm;
+    } else {
+      rpm = double.tryParse(line.trim()) ?? rpm;
+    }
+
+    _lastMillis = millis;
+    _lastRpm = rpm;
+    _lastTelemTime = DateTime.now();
+
+    if (mounted) setState(() {});
+  }
+
+  // Future<void> _sendVelocity(String text) async {
+  //   if (_rx == null) return;
+  //
+  //   final v = double.tryParse(text.trim());
+  //   if (v == null) return;
+  //
+  //   // ESP32 쪽 파서가 '\n' 기준이므로 개행 포함
+  //   final payload = utf8.encode("${v.toStringAsFixed(6)}\n");
+  //
+  //   // NUS RX는 보통 writeWithoutResponse를 지원
+  //   await _rx!.write(payload, withoutResponse: true);
+  // }
+  Future<void> _sendRpm(String rpmText) async {
     if (_rx == null) return;
 
-    final v = double.tryParse(text.trim());
-    if (v == null) return;
+    final rpm = double.tryParse(rpmText.trim());
+    if (rpm == null) return;
 
-    // ESP32 쪽 파서가 '\n' 기준이므로 개행 포함
-    final payload = utf8.encode("${v.toStringAsFixed(6)}\n");
+    final radPerSec = rpm * kRpmToRad; // ✅ 자동 변환
 
-    // NUS RX는 보통 writeWithoutResponse를 지원
+    // ESP32 파서가 '\n' 기준이므로 개행 포함
+    final payload = utf8.encode("${radPerSec.toStringAsFixed(6)}\n");
     await _rx!.write(payload, withoutResponse: true);
   }
+
 
   Future<void> _savePresets() async {
     await _prefs?.setString('preset1', _p1.text.trim());
@@ -386,7 +399,7 @@ class _FocBlePageState extends State<FocBlePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("속도 지령 (rad/s) 2개 저장/전송"),
+            const Text("속도 지령 (RPM) 2개 저장/전송"),
             const SizedBox(height: 10),
 
             Row(
@@ -395,14 +408,15 @@ class _FocBlePageState extends State<FocBlePage> {
                   child: TextField(
                     controller: _p1,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                    decoration: const InputDecoration(labelText: "Preset #1 (rad/s)"),
+                    decoration: const InputDecoration(labelText: "Preset #1 (RPM)"),
                   ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _connected ? () async {
                     await _savePresets();
-                    await _sendVelocity(_p1.text);
+                    // await _sendVelocity(_p1.text);
+                    _sendRpm(_p1.text);
                   } : null,
                   child: const Text("전송1"),
                 ),
@@ -417,14 +431,15 @@ class _FocBlePageState extends State<FocBlePage> {
                   child: TextField(
                     controller: _p2,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                    decoration: const InputDecoration(labelText: "Preset #2 (rad/s)"),
+                    decoration: const InputDecoration(labelText: "Preset #2 (RPM)"),
                   ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: _connected ? () async {
                     await _savePresets();
-                    await _sendVelocity(_p2.text);
+                    // await _sendVelocity(_p2.text);
+                    await _sendRpm(_p2.text);
                   } : null,
                   child: const Text("전송2"),
                 ),
@@ -439,7 +454,8 @@ class _FocBlePageState extends State<FocBlePage> {
                   onPressed: _connected ? () async {
                     // 정지: 0 rad/s 전송 (요구사항: 0rpm 전달)
                     // ESP32는 rad/s를 받으니 0.0 전송
-                    await _sendVelocity("0.0");
+                    // await _sendVelocity("0.0");
+                    await _sendRpm("0");
                   } : null,
                   icon: const Icon(Icons.stop),
                   label: const Text("정지(0)"),
