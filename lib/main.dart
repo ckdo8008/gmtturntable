@@ -355,49 +355,53 @@ class _FocBlePageState extends State<FocBlePage> with WidgetsBindingObserver {
       ),
 
       // ✅ 하단 고정 버튼 3개 (같은 크기)
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-        child: Row(
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _connected ? () async {
-                    await _sendDisplayRpm(kBtnRpm1.toString());
-                  } : null,
-                  child: Text("${kBtnRpm1.toStringAsFixed(7)} RPM"),
+      bottomNavigationBar: SafeArea(
+        top: false, // 위쪽은 보호할 필요 없음
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _connected ? () async {
+                      await _sendDisplayRpm(kBtnRpm1.toString());
+                    } : null,
+                    child: Text("${kBtnRpm1.toStringAsFixed(7)} RPM"),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _connected ? () async {
-                    await _sendDisplayRpm(kBtnRpm2.toString());
-                  } : null,
-                  child: Text("${kBtnRpm2.toStringAsFixed(0)} RPM"),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _connected ? () async {
+                      await _sendDisplayRpm(kBtnRpm2.toString());
+                    } : null,
+                    child: Text("${kBtnRpm2.toStringAsFixed(0)} RPM"),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  onPressed: _connected ? () async {
-                    await _sendDisplayRpm("0"); // 정지
-                  } : null,
-                  child: const Text("정지"),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    onPressed: _connected ? () async {
+                      await _sendDisplayRpm("0");
+                    } : null,
+                    child: const Text("정지"),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+
 
       body: Padding(
         padding: const EdgeInsets.all(14),
@@ -483,7 +487,7 @@ class _FocBlePageState extends State<FocBlePage> with WidgetsBindingObserver {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("속도 지령 2개 (표시 RPM 입력 → 실제 RPM=입력*10 → rad/s 전송)"),
+            const Text("속도 지령 2개"),
             const SizedBox(height: 10),
 
             Row(
@@ -544,7 +548,7 @@ class _FocBlePageState extends State<FocBlePage> with WidgetsBindingObserver {
                   child: const Text("값 저장"),
                 ),
                 const SizedBox(width: 12),
-                Text("스캔: ${_scanning ? "ON" : "OFF"}  (미연결+미발견이면 자동 검색)"),
+                Text("스캔: ${_scanning ? "ON" : "OFF"}"),
               ],
             ),
           ],
