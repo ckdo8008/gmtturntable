@@ -37,6 +37,9 @@ dependencies:
   flutter_blue_plus: ^2.1.0
   shared_preferences: ^2.5.4
   permission_handler: ^12.0.1
+  flutter_launcher_icons: ^0.14.4
+  google_fonts: ^8.0.0
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +63,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - google_fonts/
+    - icon/
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -90,3 +96,33 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+  fonts:
+    - family: NanumGothic
+      fonts:
+        - asset: google_fonts/Nanum_Gothic/NanumGothic-Regular.ttf
+        - asset: google_fonts/Nanum_Gothic/NanumGothic-Bold.ttf
+        - asset: google_fonts/Nanum_Gothic/NanumGothic-ExtraBold.ttf
+    - family: Nanum Gothic Coding
+      fonts:
+        - asset: google_fonts/Nanum_Gothic_Coding/NanumGothicCoding-Regular.ttf
+        - asset: google_fonts/Nanum_Gothic_Coding/NanumGothicCoding-Bold.ttf
+
+flutter_native_splash:
+  color: "#000000"
+  image: icon/GMT.png
+  android_gravity: center
+  fullscreen: true
+
+  android: true
+  ios: false
+
+  # Android 12 이상은 별도 설정 권장
+  android_12:
+    color: "#000000"
+    image: icon/GMT.png
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "icon/GMT.png"
+  min_sdk_android: 21
